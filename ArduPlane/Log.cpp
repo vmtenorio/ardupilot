@@ -496,6 +496,35 @@ void Plane::Log_Write_Home_And_Origin()
     }
 }
 
+// Logging of the ADC Data Added
+
+struct PACKED log_ADC {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+    float addr;
+    float alrt;
+    float a0;
+    float a1;
+    float a2;
+    float a3;
+};
+
+void Plane::Log_Write_ADC(adc_report_s* rep)
+{
+    struct log_ADC pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_ADC_MSG),
+        time_us   : AP_HAL::micros64(),
+        addr      : rep[0].data,
+        alrt      : rep[1].data,
+        a0        : rep[2].data,
+        a1        : rep[3].data,
+        a2        : rep[4].data,
+        a3        : rep[5].data
+    };
+
+    DataFlash.WriteBlock(&pkt, sizeof(pkt));
+}
+
 const struct LogStructure Plane::log_structure[] = {
     LOG_COMMON_STRUCTURES,
     { LOG_PERFORMANCE_MSG, sizeof(log_Performance), 
@@ -522,14 +551,16 @@ const struct LogStructure Plane::log_structure[] = {
     { LOG_OPTFLOW_MSG, sizeof(log_Optflow),
       "OF",   "QBffff",   "TimeUS,Qual,flowX,flowY,bodyX,bodyY" },
 #endif
-    { LOG_PIQR_MSG, sizeof(log_PID), \
-      "PIQR", "Qffffff",  "TimeUS,Des,P,I,D,FF,AFF" }, \
-    { LOG_PIQP_MSG, sizeof(log_PID), \
-      "PIQP", "Qffffff",  "TimeUS,Des,P,I,D,FF,AFF" }, \
-    { LOG_PIQY_MSG, sizeof(log_PID), \
-      "PIQY", "Qffffff",  "TimeUS,Des,P,I,D,FF,AFF" }, \
-    { LOG_PIQA_MSG, sizeof(log_PID), \
-      "PIQA", "Qffffff",  "TimeUS,Des,P,I,D,FF,AFF" }, \
+    { LOG_PIQR_MSG, sizeof(log_PID),
+      "PIQR", "Qffffff",  "TimeUS,Des,P,I,D,FF,AFF" },
+    { LOG_PIQP_MSG, sizeof(log_PID),
+      "PIQP", "Qffffff",  "TimeUS,Des,P,I,D,FF,AFF" },
+    { LOG_PIQY_MSG, sizeof(log_PID),
+      "PIQY", "Qffffff",  "TimeUS,Des,P,I,D,FF,AFF" },
+    { LOG_PIQA_MSG, sizeof(log_PID),
+      "PIQA", "Qffffff",  "TimeUS,Des,P,I,D,FF,AFF" },
+    { LOG_ADC_MSG, sizeof(log_ADC),                         // Added
+      "ADC", "Qffffff",  "TimeUS,ADDR,ALRT,A0,A1,A2,A3" },
 };
 
 #if CLI_ENABLED == ENABLED
@@ -606,6 +637,7 @@ void Plane::Log_Write_RC(void) {}
 void Plane::Log_Write_Baro(void) {}
 void Plane::Log_Write_Airspeed(void) {}
 void Plane::Log_Write_Home_And_Origin() {}
+void Plane::Log_Write_ADC(adc_report_s *rep) {} // Added
 
  #if CLI_ENABLED == ENABLED
 void Plane::Log_Read(uint16_t log_num, int16_t start_page, int16_t end_page) {}

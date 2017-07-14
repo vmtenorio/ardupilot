@@ -50,7 +50,7 @@ const AP_Scheduler::Task Plane::scheduler_tasks[] = {
     SCHED_TASK(adjust_altitude_target, 10,    200),
     SCHED_TASK(afs_fs_check,           10,    100),
     SCHED_TASK(gcs_update,             50,    500),
-    SCHED_TASK(gcs_data_stream_send,   50,    500),
+    SCHED_TASK(gcs_data_stream_send,  400,    500), // Changed 50 -> 400
     SCHED_TASK(update_events,          50,    150),
     SCHED_TASK(read_battery,           10,    300),
     SCHED_TASK(compass_accumulate,     50,    200),
@@ -70,6 +70,9 @@ const AP_Scheduler::Task Plane::scheduler_tasks[] = {
     SCHED_TASK(airspeed_ratio_update,   1,    100),
     SCHED_TASK(update_mount,           50,    100),
     SCHED_TASK(update_trigger,         50,    100),
+#if ADC == ENABLED
+    SCHED_TASK(adc_read,               20,    300),     // Added
+#endif
     SCHED_TASK(log_perf_info,         0.2,    100),
     SCHED_TASK(compass_save,          0.1,    200),
     SCHED_TASK(Log_Write_Fast,         25,    300),
@@ -1064,5 +1067,24 @@ float Plane::tecs_hgt_afe(void)
     }
     return hgt_afe;
 }
+
+// Metodo ADC Added
+
+void Plane::adc_read ()
+{
+    uint8_t chan_n = adc.get_channels_number();
+
+    adc_report_s *rep = new adc_report_s[chan_n];
+
+    //delete[] rep;
+
+    adc.read(rep, (size_t)chan_n);
+
+    Log_Write_ADC(rep);
+
+    delete[] rep;
+
+}
+
 
 AP_HAL_MAIN_CALLBACKS(&plane);

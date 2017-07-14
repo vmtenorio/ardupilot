@@ -845,6 +845,7 @@ private:
     void Log_Write_Baro(void);
     void Log_Write_Airspeed(void);
     void Log_Write_Home_And_Origin();
+    void Log_Write_ADC (adc_report_s* report);      // Added
     void Log_Write_Vehicle_Startup_Messages();
     void Log_Write_AOA_SSA();
     void Log_Read(uint16_t log_num, int16_t start_page, int16_t end_page);
@@ -1107,6 +1108,12 @@ private:
     // support for AP_Avoidance custom flight mode, AVOID_ADSB
     bool avoid_adsb_init(bool ignore_checks);
     void avoid_adsb_run();
+
+    // ADC
+    AP_ADC_ADS1115 adc;
+    // adc_report_s *report;
+
+    void adc_read ();
 
 public:
     void mavlink_delay_cb();

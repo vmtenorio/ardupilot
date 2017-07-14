@@ -213,6 +213,9 @@ void Plane::init_ardupilot()
 
     init_rc_in();               // sets up rc channels from radio
 
+    // Init ADC Added
+    adc.init();
+
 #if MOUNT == ENABLED
     // initialise camera mount
     camera_mount.init(&DataFlash, serial_manager);
