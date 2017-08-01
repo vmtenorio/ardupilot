@@ -58,8 +58,8 @@
 #define ADS1115_RATE_16             0x01 << ADS1115_RATE_SHIFT
 #define ADS1115_RATE_32             0x02 << ADS1115_RATE_SHIFT
 #define ADS1115_RATE_64             0x03 << ADS1115_RATE_SHIFT
-#define ADS1115_RATE_128            0x04 << ADS1115_RATE_SHIFT // default
-#define ADS1115_RATE_250            0x05 << ADS1115_RATE_SHIFT
+#define ADS1115_RATE_128            0x04 << ADS1115_RATE_SHIFT
+#define ADS1115_RATE_250            0x05 << ADS1115_RATE_SHIFT // default
 #define ADS1115_RATE_475            0x06 << ADS1115_RATE_SHIFT
 #define ADS1115_RATE_860            0x07 << ADS1115_RATE_SHIFT
 
@@ -130,8 +130,8 @@ bool AP_ADC_ADS1115::init()
 
     _gain = ADS1115_PGA_4P096;
 
-    // Changed 100000 -> 6500       Funciona con 8000
-    _dev->register_periodic_callback(8000, FUNCTOR_BIND_MEMBER(&AP_ADC_ADS1115::_update, void));
+    // Changed 100000 -> 2000
+    _dev->register_periodic_callback(2000, FUNCTOR_BIND_MEMBER(&AP_ADC_ADS1115::_update, void));
 
     return true;
 }
@@ -146,7 +146,7 @@ bool AP_ADC_ADS1115::_start_conversion(uint8_t channel)
     config.reg = ADS1115_RA_CONFIG;
     config.val = htobe16(ADS1115_OS_ACTIVE | _gain | mux_table[channel] |
                          ADS1115_MODE_SINGLESHOT | ADS1115_COMP_QUE_DISABLE |
-                         ADS1115_RATE_250);
+                         ADS1115_RATE_860);
 
     return _dev->transfer((uint8_t *)&config, sizeof(config), nullptr, 0);
 }
@@ -211,10 +211,11 @@ void AP_ADC_ADS1115::_update()
         return;
     }
 
-    /* check rdy bit */
+    // check rdy bit
     if ((config[1] & 0x80) != 0x80 ) {
         return;
     }
+
 
     if (!_dev->read_registers(ADS1115_RA_CONVERSION, (uint8_t *)&val,  sizeof(val))) {
         return;
@@ -225,7 +226,9 @@ void AP_ADC_ADS1115::_update()
     _samples[_channel_to_read].data = sample;
     _samples[_channel_to_read].id = _channel_to_read;
 
-    /* select next channel */
-    _channel_to_read = (_channel_to_read + 1) % _channels_number;
+    // select next channel
+    _channel_to_read = ((_channel_to_read + 1) % (_channels_number - 2)) + 2; // To read from A0 to A3
+    //_channel_to_read = (_channel_to_read + 1) % _channels_number;
     _start_conversion(_channel_to_read);
+
 }
