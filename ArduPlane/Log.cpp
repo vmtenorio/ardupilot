@@ -496,6 +496,7 @@ void Plane::Log_Write_Home_And_Origin()
     }
 }
 
+#if ADC == ENABLED
 // Logging of the ADC Data Added
 
 struct PACKED log_ADC {
@@ -524,6 +525,7 @@ void Plane::Log_Write_ADC(adc_report_s* rep)
 
     DataFlash.WriteBlock(&pkt, sizeof(pkt));
 }
+#endif
 
 const struct LogStructure Plane::log_structure[] = {
     LOG_COMMON_STRUCTURES,
@@ -559,8 +561,10 @@ const struct LogStructure Plane::log_structure[] = {
       "PIQY", "Qffffff",  "TimeUS,Des,P,I,D,FF,AFF" },
     { LOG_PIQA_MSG, sizeof(log_PID),
       "PIQA", "Qffffff",  "TimeUS,Des,P,I,D,FF,AFF" },
+#if ADC == ENABLED
     { LOG_ADC_MSG, sizeof(log_ADC),                         // Added
       "ADC", "Qffffff",  "TimeUS,ADDR,ALRT,A0,A1,A2,A3" },
+#endif
 };
 
 #if CLI_ENABLED == ENABLED

@@ -76,9 +76,9 @@
 #define ADS1115_COMP_LAT_LATCHING       0x01 << ADS1115_COMP_LAT_SHIFT
 
 #define ADS1115_COMP_QUE_SHIFT      0
-#define ADS1115_COMP_QUE_ASSERT1    0x00 << ADS1115_COMP_SHIFT
-#define ADS1115_COMP_QUE_ASSERT2    0x01 << ADS1115_COMP_SHIFT
-#define ADS1115_COMP_QUE_ASSERT4    0x02 << ADS1115_COMP_SHIFT
+#define ADS1115_COMP_QUE_ASSERT1    0x00 << ADS1115_COMP_QUE_SHIFT
+#define ADS1115_COMP_QUE_ASSERT2    0x01 << ADS1115_COMP_QUE_SHIFT
+#define ADS1115_COMP_QUE_ASSERT4    0x02 << ADS1115_COMP_QUE_SHIFT
 #define ADS1115_COMP_QUE_DISABLE    0x03 // default
 
 #define ADS1115_DEBUG 0
@@ -227,7 +227,7 @@ void AP_ADC_ADS1115::_update()
     _samples[_channel_to_read].id = _channel_to_read;
 
     // select next channel
-    _channel_to_read = ((_channel_to_read + 1) % (_channels_number - 2)) + 2; // To read from A0 to A3
+    _channel_to_read = ((_channel_to_read - 1) % (_channels_number - 2)) + 2; // To read from A0 to A3
     //_channel_to_read = (_channel_to_read + 1) % _channels_number;
     _start_conversion(_channel_to_read);
 

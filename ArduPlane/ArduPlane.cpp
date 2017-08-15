@@ -1076,8 +1076,6 @@ void Plane::adc_read ()
 
     adc_report_s *rep = new adc_report_s[chan_n];
 
-    //delete[] rep;
-
     adc.read(rep, (size_t)chan_n);
 
     Log_Write_ADC(rep);
